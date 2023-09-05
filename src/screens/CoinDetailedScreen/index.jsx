@@ -44,7 +44,7 @@ const CoinDetailedScreen = () => {
 
   const fetchCoinData = async () => {
     setLoading(true);
-    const fetchedCoinData = await getDetailedCoinData(coinId);
+    const fetchedCoinData = await getDetailedCoinData("bitcoin");
     setCoin(fetchedCoinData);
     setUsdValue(fetchedCoinData.market_data.current_price.usd.toString());
     setLoading(false);
@@ -68,7 +68,7 @@ const CoinDetailedScreen = () => {
 
   useEffect(() => {
     fetchCoinData();
-    fetchMarketCoinData(1);
+    fetchMarketCoinData();
     fetchCandleStickChartData();
   }, []);
 
@@ -84,7 +84,7 @@ const CoinDetailedScreen = () => {
     []
   );
 
-  if (loading || !coin || !coinMarketData || !coinCandleChartData) {
+  if (!coin || !coinMarketData || !coinCandleChartData) {
     return <ActivityIndicator size="large" />;
   }
 
