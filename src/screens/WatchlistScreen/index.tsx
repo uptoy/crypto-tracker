@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, RefreshControl } from "react-native";
+import { FlatList, RefreshControl } from "react-native";
 import { useWatchlist } from "../../Contexts/WatchlistContext";
 import CoinItem from "../../components/CoinItem";
 import { getWatchlistedCoins } from "../../services/requests";
