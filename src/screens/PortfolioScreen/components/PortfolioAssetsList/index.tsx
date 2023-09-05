@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
-import styles from "./styles";
+import { StyleSheet } from "react-native";
 import PortfolioAssetsItem from "../PortfolioAssetItem";
 import { useNavigation } from "@react-navigation/native";
 import { useRecoilValue, useRecoilState } from "recoil";
@@ -11,38 +11,18 @@ import { FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const PortfolioAssetsList = () => {
-  const navigation = useNavigation();
+  const navigation: any = useNavigation();
   const assets = useRecoilValue(allPortfolioAssets);
   const [storageAssets, setStorageAssets] = useRecoilState(allPortfolioBoughtAssetsInStorage);
 
-  const getCurrentBalance = () => assets.reduce((total, currentAsset) => total + currentAsset.currentPrice * currentAsset.quantityBought, 0);
-
-  const getCurrentValueChange = () => {
-    const currentBalance = getCurrentBalance();
-    const boughtBalance = assets.reduce((total, currentAsset) => total + currentAsset.priceBought * currentAsset.quantityBought, 0);
-
-    return (currentBalance - boughtBalance).toFixed(2);
-  };
-
-  const getCurrentPercentageChange = () => {
-    const currentBalance = getCurrentBalance() === 0 ? 1 : getCurrentBalance();
-    const boughtBalance =
-      assets.reduce((total, currentAsset) => total + currentAsset.priceBought * currentAsset.quantityBought, 0) === 0
-        ? 1
-        : assets.reduce((total, currentAsset) => total + currentAsset.priceBought * currentAsset.quantityBought, 0);
-    return (
-      (((currentBalance - boughtBalance) / boughtBalance) * 100).toFixed(2) || 0
-    );
-  };
-
-  const onDeleteAsset = async (asset) => {
-    const newAssets = storageAssets.filter((coin) => coin.unique_id !== asset.item.unique_id);
+  const onDeleteAsset = async (asset: any) => {
+    const newAssets = storageAssets.filter((coin: any) => coin.unique_id !== asset.item.unique_id);
     const jsonValue = JSON.stringify(newAssets);
     await AsyncStorage.setItem("@portfolio_coins", jsonValue);
     setStorageAssets(newAssets);
   };
 
-  const renderDeleteButton = (data) => {
+  const renderDeleteButton = (data: any) => {
     return (
       <Pressable
         style={{
@@ -59,7 +39,7 @@ const PortfolioAssetsList = () => {
     );
   };
 
-  const isChangePositive = () => getCurrentValueChange() >= 0;
+  const isChangePositive = () => false;
 
   return (
     <SwipeListView
@@ -75,13 +55,13 @@ const PortfolioAssetsList = () => {
           <View style={styles.balanceContainer}>
             <View>
               <Text style={styles.currentBalance}>Current Balance</Text>
-              <Text style={styles.currentBalanceValue}>${getCurrentBalance().toFixed(2)}</Text>
+              <Text style={styles.currentBalanceValue}>${21380}</Text>
               <Text
                 style={{
                   ...styles.valueChange,
                   color: isChangePositive() ? "green" : "red",
                 }}>
-                ${getCurrentValueChange()} (All Time)
+                $1000 (All Time)
               </Text>
             </View>
             <View
@@ -90,7 +70,7 @@ const PortfolioAssetsList = () => {
                 backgroundColor: isChangePositive() ? "green" : "red",
               }}>
               <AntDesign name={isChangePositive() ? "caretup" : "caretdown"} size={12} color={"white"} style={{ alignSelf: "center", marginRight: 5 }} />
-              <Text style={styles.percentageChange}>{getCurrentPercentageChange()}%</Text>
+              <Text style={styles.percentageChange}>{-0.54}%</Text>
             </View>
           </View>
           <Text style={styles.assetsLabel}>Your Assets</Text>
@@ -106,3 +86,60 @@ const PortfolioAssetsList = () => {
 };
 
 export default PortfolioAssetsList;
+
+const styles = StyleSheet.create({
+  currentBalance: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 15,
+  },
+  currentBalanceValue: {
+    color: "white",
+    fontSize: 40,
+    fontWeight: "700",
+    letterSpacing: 1,
+  },
+  valueChange: {
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  percentageChange: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 17,
+  },
+  balanceContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 10,
+    marginBottom: 5,
+    marginHorizontal: 10,
+  },
+  priceChangePercentageContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 3,
+    paddingVertical: 8,
+    borderRadius: 5,
+  },
+  assetsLabel: {
+    color: "white",
+    fontSize: 23,
+    fontWeight: "700",
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+  },
+  buttonContainer: {
+    backgroundColor: "#4169E1",
+    padding: 10,
+    alignItems: "center",
+    marginVertical: 25,
+    marginHorizontal: 10,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 17,
+    fontWeight: "600",
+  },
+});

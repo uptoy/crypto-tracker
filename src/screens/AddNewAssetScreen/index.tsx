@@ -1,24 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Pressable, KeyboardAvoidingView, Platform } from "react-native";
 import SearchableDropdown from "react-native-searchable-dropdown";
-import styles from "./styles";
+import { StyleSheet } from "react-native";
 import { useRecoilState } from "recoil";
 import { allPortfolioBoughtAssetsInStorage } from "../../atoms/PortfolioAssets";
 import { getAllCoins, getDetailedCoinData } from "../../services/requests";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import uuid from 'react-native-uuid';
+import uuid from "react-native-uuid";
+
+interface Coin {
+  id: string;
+  name: string;
+  symbol: string;
+}
 
 const AddNewAssetScreen = () => {
-  const [allCoins, setAllCoins] = useState([]);
-  const [boughtAssetQuantity, setBoughtAssetQuantity] = useState("");
+  const [allCoins, setAllCoins] = useState<Coin[]>([]);
+  const [boughtAssetQuantity, setBoughtAssetQuantity] = useState<any>("");
   const [loading, setLoading] = useState(false);
-  const [selectedCoinId, setSelectedCoinId] = useState(null);
-  const [selectedCoin, setSelectedCoin] = useState(null);
+  const [selectedCoinId, setSelectedCoinId] = useState<string>("");
+  const [selectedCoin, setSelectedCoin] = useState<any>({});
 
-  const [assetsInStorage, setAssetsInStorage] = useRecoilState(
-    allPortfolioBoughtAssetsInStorage
-  );
+  const [assetsInStorage, setAssetsInStorage] = useRecoilState(allPortfolioBoughtAssetsInStorage);
 
   const navigation = useNavigation();
 
@@ -29,7 +33,7 @@ const AddNewAssetScreen = () => {
       return;
     }
     setLoading(true);
-    const allCoins = await getAllCoins();
+    const allCoins: any = await getAllCoins();
     setAllCoins(allCoins);
     setLoading(false);
   };
@@ -39,8 +43,10 @@ const AddNewAssetScreen = () => {
       return;
     }
     setLoading(true);
-    const coinInfo = await getDetailedCoinData(selectedCoinId);
-    setSelectedCoin(coinInfo);
+    if (selectedCoinId !== "") {
+      const coinInfo = await getDetailedCoinData(selectedCoinId);
+      setSelectedCoin(coinInfo);
+    }
     setLoading(false);
   };
 
@@ -49,7 +55,7 @@ const AddNewAssetScreen = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedCoinId) {
+    if (selectedCoinId !== "") {
       fetchCoinInfo();
     }
   }, [selectedCoinId]);
@@ -60,9 +66,9 @@ const AddNewAssetScreen = () => {
       unique_id: selectedCoin.id + uuid.v4(),
       name: selectedCoin.name,
       image: selectedCoin.image.small,
-      ticker: selectedCoin.symbol.toUpperCase(),
+      ticker: selectedCoin.symbol ? selectedCoin.symbol.toUpperCase() : "",
       quantityBought: parseFloat(boughtAssetQuantity),
-      priceBought: selectedCoin.market_data.current_price.usd,
+      // priceBought: selectedCoin.market_data.current_price.usd,
     };
     const newAssets = [...assetsInStorage, newAsset];
     const jsonValue = JSON.stringify(newAssets);
@@ -72,10 +78,10 @@ const AddNewAssetScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} keyboardVerticalOffset={80} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <KeyboardAvoidingView style={{ flex: 1 }} keyboardVerticalOffset={80} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <SearchableDropdown
         items={allCoins}
-        onItemSelect={(item) => setSelectedCoinId(item.id)}
+        onItemSelect={(item: any) => setSelectedCoinId(item.id)}
         containerStyle={styles.dropdownContainer}
         itemStyle={styles.item}
         itemTextStyle={{ color: "white" }}
@@ -98,18 +104,10 @@ const AddNewAssetScreen = () => {
         <>
           <View style={styles.boughtQuantityContainer}>
             <View style={{ flexDirection: "row" }}>
-              <TextInput
-                style={{ color: "white", fontSize: 90 }}
-                value={boughtAssetQuantity}
-                placeholder="0"
-                keyboardType="numeric"
-                onChangeText={setBoughtAssetQuantity}
-              />
-              <Text style={styles.ticker}>{selectedCoin.symbol.toUpperCase()}</Text>
+              <TextInput style={{ color: "white", fontSize: 90 }} value={boughtAssetQuantity} placeholder="0" keyboardType="numeric" onChangeText={setBoughtAssetQuantity} />
+              <Text style={styles.ticker}>{selectedCoin.symbol ? selectedCoin.symbol.toUpperCase() : ""}</Text>
             </View>
-            <Text style={styles.pricePerCoin}>
-              ${selectedCoin.market_data.current_price.usd} per coin
-            </Text>
+            {/* <Text style={styles.pricePerCoin}>${selectedCoin.market_data.current_price.usd} per coin</Text> */}
           </View>
           <Pressable
             style={{
@@ -117,14 +115,12 @@ const AddNewAssetScreen = () => {
               backgroundColor: isQuantityEntered() ? "#303030" : "#4169E1",
             }}
             onPress={onAddNewAsset}
-            disabled={isQuantityEntered()}
-          >
+            disabled={isQuantityEntered()}>
             <Text
               style={{
                 ...styles.buttonText,
                 color: isQuantityEntered() ? "grey" : "white",
-              }}
-            >
+              }}>
               Add New Asset
             </Text>
           </Pressable>
@@ -135,3 +131,48 @@ const AddNewAssetScreen = () => {
 };
 
 export default AddNewAssetScreen;
+
+const styles = StyleSheet.create({
+  dropdownContainer: {
+    width: "100%",
+    paddingHorizontal: 10,
+    paddingVertical: 20,
+  },
+  item: {
+    padding: 10,
+    marginTop: 2,
+    backgroundColor: "#1e1e1e",
+    borderWidth: 1,
+    borderColor: "#444444",
+    borderRadius: 5,
+  },
+  ticker: {
+    color: "grey",
+    fontWeight: "700",
+    fontSize: 20,
+    marginTop: 25,
+    marginLeft: 5,
+  },
+  boughtQuantityContainer: {
+    flex: 1,
+    alignItems: "center",
+    marginTop: 50,
+  },
+  buttonContainer: {
+    padding: 10,
+    alignItems: "center",
+    marginVertical: 30,
+    marginHorizontal: 20,
+    borderRadius: 5,
+  },
+  buttonText: {
+    fontSize: 17,
+    fontWeight: "600",
+  },
+  pricePerCoin: {
+    color: "grey",
+    fontWeight: "600",
+    fontSize: 17,
+    letterSpacing: 0.5,
+  },
+});

@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, Image } from "react-native";
-import styles from "./styles";
 import { AntDesign } from "@expo/vector-icons";
+import { StyleSheet } from "react-native";
 
-const PortfolioAssetsItem = ({ assetItem }) => {
+const PortfolioAssetsItem = ({ assetItem }:any) => {
   const {
     currentPrice,
     image,
@@ -57,3 +57,28 @@ const PortfolioAssetsItem = ({ assetItem }) => {
 };
 
 export default PortfolioAssetsItem;
+
+
+
+
+const styles = StyleSheet.create({
+  title: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    alignSelf: 'flex-end'
+  },
+  ticker: {
+    color: 'grey',
+    fontWeight: '700' 
+  },
+  coinContainer: {
+    flexDirection: 'row',
+    padding: 15,
+    backgroundColor: "#121212"
+  },
+  quantityContainer: {
+    marginLeft: 'auto',
+    alignItems: 'flex-end'
+  }
+});
